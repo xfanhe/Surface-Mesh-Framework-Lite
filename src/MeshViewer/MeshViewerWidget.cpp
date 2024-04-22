@@ -28,7 +28,7 @@ bool MeshViewerWidget::LoadMesh(const std::string & filename)
 		QFileInfo fi(strMeshFileName);
 		strMeshPath = fi.path();
 		strMeshBaseName = fi.baseName();
-		UpdateMesh();
+		MeshInitialization();
 		update();
 		return true;
 	}
@@ -40,7 +40,7 @@ void MeshViewerWidget::Clear(void)
 	mesh.clear();
 }
 
-void MeshViewerWidget::UpdateMesh(void)
+void MeshViewerWidget::MeshInitialization(void)
 {
 	mesh.update_normals();
 	if (mesh.vertices_empty())
@@ -125,7 +125,7 @@ void MeshViewerWidget::ViewCenter(void)
 {
 	if (!mesh.vertices_empty())
 	{
-		UpdateMesh();
+		MeshInitialization();
 	}
 	update();
 }
@@ -152,6 +152,22 @@ void MeshViewerWidget::PrintMeshInfo(void)
 	std::cout << "  Diag length of BBox: " << (ptMax - ptMin).norm() << std::endl;
 }
 
+/*
+void MeshViewerWidget::MeshUpdate()
+{
+	mutex.lock();
+	mesh.update_normals();
+	update();
+	printf("PaintEvent\n");
+	mutex.unlock();
+}
+*/
+
+Mesh& MeshViewerWidget::GetMesh()
+{
+	return mesh;
+}
+
 void MeshViewerWidget::DrawScene(void)
 {
 	glMatrixMode(GL_PROJECTION);
@@ -159,11 +175,13 @@ void MeshViewerWidget::DrawScene(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixd(&modelviewmatrix[0]);
 	//DrawAxis();
+	mutex.lock();
 	if (isDrawBoundingBox) DrawBoundingBox();
 	if (isDrawBoundary) DrawBoundary();
 	if (isEnableLighting) glEnable(GL_LIGHTING);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, isTwoSideLighting);
 	DrawSceneMesh();
+	mutex.unlock();
 	if (isEnableLighting) glDisable(GL_LIGHTING);
 }
 

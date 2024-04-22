@@ -1,5 +1,6 @@
 #pragma once
 #include <QString>
+#include <QMutex>
 #include "QGLViewerWidget.h"
 #include "../MeshDefinition.h"
 
@@ -7,11 +8,12 @@ class MeshViewerWidget : public QGLViewerWidget
 {
 	Q_OBJECT
 public:
+	QMutex mutex;
 	MeshViewerWidget(QWidget* parent = 0);
 	virtual ~MeshViewerWidget(void);
 	bool LoadMesh(const std::string & filename);
 	void Clear(void);
-	void UpdateMesh(void);
+	void MeshInitialization(void);
 	bool SaveMesh(const std::string & filename);
 	bool ScreenShot(void);
 	void SetDrawBoundingBox(bool b);
@@ -22,10 +24,12 @@ public:
 	void ViewCenter(void);
 	void CopyRotation(void);
 	void LoadRotation(void);
+	Mesh& GetMesh(void);
 signals:
 	void LoadMeshOKSignal(bool, QString);
 public slots:
 	void PrintMeshInfo(void);
+	//void MeshUpdate(Mesh mesh);
 protected:
 	virtual void DrawScene(void) override;
 	void DrawSceneMesh(void);

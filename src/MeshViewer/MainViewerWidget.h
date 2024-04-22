@@ -2,6 +2,7 @@
 #include <QtGui>
 #include <QString>
 #include <QFileDialog>
+#include <QMutex>
 class MeshParamWidget;
 class InteractiveViewerWidget;
 class MainViewerWidget : public QDialog
@@ -17,6 +18,8 @@ protected:
 	virtual void CreateViewerDialog(void);
 	virtual void OpenMeshGUI(const QString & fname);
 	virtual void SaveMeshGUI(const QString & fname);
+
+
 
 	private slots:
 	void LoadMeshFromInner(bool OK, QString fname);
@@ -40,14 +43,15 @@ protected:
 	void ViewCenter(void);
 	void CopyRotation(void);
 	void LoadRotation(void);
-
+	void MinimalSurface(void);
 signals:
 	void haveLoadMesh(QString filePath);
 
 protected:
 	bool loadmeshsuccess;
 
+
 private:
 	MeshParamWidget* meshparamwidget;
-	InteractiveViewerWidget* meshviewerwidget;
+	InteractiveViewerWidget* interactviewerwidget;
 };

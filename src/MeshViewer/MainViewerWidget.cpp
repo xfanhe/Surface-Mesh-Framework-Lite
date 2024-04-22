@@ -22,26 +22,28 @@ void MainViewerWidget::InitViewerWindow(void)
 
 	QHBoxLayout* main_layout = new QHBoxLayout();
 	main_layout->addWidget(meshparamwidget);
-	main_layout->addWidget(meshviewerwidget, 1);
+	main_layout->addWidget(interactviewerwidget, 1);
 	this->setLayout(main_layout);
 }
 
 void MainViewerWidget::CreateParamWidget(void)
 {
 	meshparamwidget = new MeshParamWidget();
-	connect(meshparamwidget, SIGNAL(PrintInfoSignal()), meshviewerwidget, SLOT(PrintMeshInfo()));
+	connect(meshparamwidget, SIGNAL(PrintInfoSignal()), interactviewerwidget, SLOT(PrintMeshInfo()));
+	connect(meshparamwidget, &MeshParamWidget::FindBoundary, [this](int iterate, double lambda) { this->interactviewerwidget->MinimalSurface(iterate, lambda); });
+	connect(meshparamwidget, &MeshParamWidget::Parameterization, [this](int method) { this->interactviewerwidget->Parameterization(method); });
 }
 
 void MainViewerWidget::CreateViewerDialog(void)
 {
-	meshviewerwidget = new InteractiveViewerWidget(NULL);
-	meshviewerwidget->setAcceptDrops(true);
-	connect(meshviewerwidget, SIGNAL(LoadMeshOKSignal(bool, QString)), SLOT(LoadMeshFromInner(bool, QString)));
+	interactviewerwidget = new InteractiveViewerWidget(NULL);
+	interactviewerwidget->setAcceptDrops(true);
+	connect(interactviewerwidget, SIGNAL(LoadMeshOKSignal(bool, QString)), SLOT(LoadMeshFromInner(bool, QString)));
 }
 
 void MainViewerWidget::OpenMeshGUI(const QString & fname)
 {
-	if (fname.isEmpty() || !meshviewerwidget->LoadMesh(fname.toStdString()))
+	if (fname.isEmpty() || !interactviewerwidget->LoadMesh(fname.toStdString()))
 	{
 		QString msg = "Cannot read mesh from file:\n '" + fname + "'";
 		QMessageBox::critical(NULL, windowTitle(), msg);
@@ -55,7 +57,7 @@ void MainViewerWidget::OpenMeshGUI(const QString & fname)
 
 void MainViewerWidget::SaveMeshGUI(const QString & fname)
 {
-	if (fname.isEmpty() || !meshviewerwidget->SaveMesh(fname.toStdString()))
+	if (fname.isEmpty() || !interactviewerwidget->SaveMesh(fname.toStdString()))
 	{
 		QString msg = "Cannot read mesh from file:\n '" + fname + "'";
 		QMessageBox::critical(NULL, windowTitle(), msg);
@@ -106,81 +108,86 @@ void MainViewerWidget::ClearMesh(void)
 	if (loadmeshsuccess)
 	{
 		loadmeshsuccess = false;
-		meshviewerwidget->Clear();
+		interactviewerwidget->Clear();
 	}
 }
 
 void MainViewerWidget::Screenshot(void)
 {
-	meshviewerwidget->ScreenShot();
+	interactviewerwidget->ScreenShot();
 }
 
 void MainViewerWidget::ShowPoints(void)
 {
-	meshviewerwidget->SetDrawMode(InteractiveViewerWidget::POINTS);
+	interactviewerwidget->SetDrawMode(InteractiveViewerWidget::POINTS);
 }
 
 void MainViewerWidget::ShowWireframe(void)
 {
-	meshviewerwidget->SetDrawMode(InteractiveViewerWidget::WIREFRAME);
+	interactviewerwidget->SetDrawMode(InteractiveViewerWidget::WIREFRAME);
 }
 
 void MainViewerWidget::ShowHiddenLines(void)
 {
-	meshviewerwidget->SetDrawMode(InteractiveViewerWidget::HIDDENLINES);
+	interactviewerwidget->SetDrawMode(InteractiveViewerWidget::HIDDENLINES);
 }
 
 void MainViewerWidget::ShowFlatLines(void)
 {
-	meshviewerwidget->SetDrawMode(InteractiveViewerWidget::FLATLINES);
+	interactviewerwidget->SetDrawMode(InteractiveViewerWidget::FLATLINES);
 }
 
 void MainViewerWidget::ShowFlat(void)
 {
-	meshviewerwidget->SetDrawMode(InteractiveViewerWidget::FLAT);
+	interactviewerwidget->SetDrawMode(InteractiveViewerWidget::FLAT);
 }
 
 void MainViewerWidget::ShowSmooth(void)
 {
-	meshviewerwidget->SetDrawMode(InteractiveViewerWidget::SMOOTH);
+	interactviewerwidget->SetDrawMode(InteractiveViewerWidget::SMOOTH);
 }
 
 void MainViewerWidget::Lighting(bool b)
 {
-	meshviewerwidget->EnableLighting(b);
+	interactviewerwidget->EnableLighting(b);
 }
 
 void MainViewerWidget::DoubleSideLighting(bool b)
 {
-	meshviewerwidget->EnableDoubleSide(b);
+	interactviewerwidget->EnableDoubleSide(b);
 }
 
 void MainViewerWidget::ShowBoundingBox(bool b)
 {
-	meshviewerwidget->SetDrawBoundingBox(b);
+	interactviewerwidget->SetDrawBoundingBox(b);
 }
 
 void MainViewerWidget::ShowBoundary(bool b)
 {
-	meshviewerwidget->SetDrawBoundary(b);
+	interactviewerwidget->SetDrawBoundary(b);
 }
 
 void MainViewerWidget::ResetView(void)
 {
-	meshviewerwidget->ResetView();
+	interactviewerwidget->ResetView();
 }
 
 void MainViewerWidget::ViewCenter(void)
 {
-	meshviewerwidget->ViewCenter();
+	interactviewerwidget->ViewCenter();
 }
 
 void MainViewerWidget::CopyRotation(void)
 {
-	meshviewerwidget->CopyRotation();
+	interactviewerwidget->CopyRotation();
 }
 
 void MainViewerWidget::LoadRotation(void)
 {
-	meshviewerwidget->LoadRotation();
+	interactviewerwidget->LoadRotation();
+}
+
+void MainViewerWidget::MinimalSurface(void)
+{
+	interactviewerwidget->MinimalSurface();
 }
